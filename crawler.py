@@ -3,16 +3,17 @@ from bs4 import BeautifulSoup
 import os
 import time
 def runCrawler():
-    url = 'https://www.coingecko.com/sitemap1.xml'
+    url = 'https://www.coingecko.com/sitemap'
 
     headers = {"Accept": "application/xml"}
 
     response = requests.request("GET", url, headers=headers)
-
     soup = BeautifulSoup(response.text,'html.parser')
-
-    d = soup.find_all("xhtml:link")
-
+    unfilteredDetails = soup.find('loc')
+    filteredDetails = requests.get(unfilteredDetails.text)
+    filteredDetails = filteredDetails.text
+    filteredDetails = BeautifulSoup(filteredDetails,'html.parser')
+    d = filteredDetails.find_all("xhtml:link")
     if os.path.exists('./reference.txt'):
         for details in d:
             href = details.get('href')
@@ -46,5 +47,6 @@ def runCrawler():
             return ('No new links added')
     except Exception as e:
         return e
+
 if __name__ == '__main__':
     print (runCrawler())
